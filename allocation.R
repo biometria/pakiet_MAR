@@ -1,58 +1,35 @@
-allocation<-function(data, groups, size=0.1, method="Pro"){
+allocation<-function(data, groups, fraction=0.1, method="Pro"){
+	
+	require(cluster)
 	
 	if(!any(method %in% c("Pro", "Log", "D2", "D3"))
 		stop("Bad name for allocation method!")
-		
-	n<-nrow(data)*size
-	nj<-NULL
-	njn<-NULL
+	size <- nrow(data)
+	newSize <- size*fraction #n
+	grpIDs <- unique(groups)
+	
+	grpIDs <- unique(groups)
+	grpSize<-unlist(lapply(1:a, function(i, groups){sum(groups==i)}, groups))
+
 
 	if (method=="Pro"){
-	
-		cat("Proportional allocation method","\n") #method that not require cluster package
-	 
-		a<-max(groups)
-		for (j in 1:a){
 		
-			groups_a<-subset(data, groups==j) 
-			
-			nj<-round(n*(nrow(groups_a)/nrow(data)))
-			if (nj==0) 
-				nj<-1
-			cat(paste(j, nj,"\n", sep=" "))
-			njn[j]<-nj
-		}
-		l<-1:a
-		njn<-cbind(l,njn, deparse.level=0)
-		cat(paste("Number of accessions in core colection:", sum(njn[,2]),"\n" ,sep=" "))
-	
+		cat("Proportional allocation method\n") #method that not require cluster package
+		newGrpSizes<-PRO(groups, size, newSize, grpIDs)
+		
 	} else if (method=="Log"){
-		print("Logarytmic allocation method")
-		a<-max(groups)
-		sum_log_a<-NULL
-		for(j in 1:a){
-			groups_a<-subset(data, groups==j) 
-			sum_log_a[j]<-(log(nrow(groups_a))*nrow(groups_a))
-			sum_log<-sum(sum_log_a)}
-			for (j in 1:a){
-				groups_a<-subset(data, groups==j) 
-				nj<-round(n*(log(nrow(groups_a))*nrow(groups_a)/sum_log))
-				if (nj==0) nj<-1
-					cat(paste(j, nj,"\n", sep=" "))
-				njn[j]<-nj
-			}
-			l<-1:a
-			njn<-cbind(l,njn, deparse.level=0)
-			cat(paste("Number of accessions in core colection:", sum(njn[,2]),"\n" ,sep=" "))
+		
+		cat("Logarytmic allocation method\n")
+		newGrpSizes<-LOG(groups, size, newSize, grpIDs, grpSize)
+
 
 	} else if (method=="D2"){
-		cat("D2 allocation method", "\n")
-		library(cluster)
-		a<-max(groups)
+		cat("D2 allocation method\n")
+		group_a<- groupSize[j]
 		sum_dist_a<-NULL
 		j<-NULL
 		for(j in 1:a){
-			groups_a<-subset(data, groups==j) 
+			
 			sum_dist_a[j]<-(mean(daisy(groups_a))*nrow(groups_a))
 			sum_dist<-sum(sum_dist_a)}
 			j<-NULL
@@ -64,18 +41,15 @@ allocation<-function(data, groups, size=0.1, method="Pro"){
 					cat(paste(j, nj,"\n", sep=" "))
 				njn[j]<-nj
 			}
-			l<-1:a
-			njn<-cbind(l,njn, deparse.level=0)
-			cat(paste("Number of accessions in core colection:", sum(njn[,2]),"\n" ,sep=" "))
+	
 
 	} else if (method=="D3"){
-		cat("D3 allocation method","\n")
-		library(cluster)
-		a<-max(groups)
+		cat("D3 allocation method\n")
+		group_a<- groupSize[j]
 		sum_dist_a<-NULL
 		j<-NULL
 		for(j in 1:a){
-			groups_a<-subset(data, groups==j) 
+			
 			sum_dist_a[j]<-(mean(daisy(groups_a))*log(nrow(groups_a))*nrow(groups_a))
 			sum_dist<-sum(sum_dist_a)}
 			j<-NULL
@@ -87,10 +61,12 @@ allocation<-function(data, groups, size=0.1, method="Pro"){
 					cat(paste(j, nj,"\n", sep=" "))
 				njn[j]<-nj
 			}
-			l<-1:a
-			njn<-cbind(l,njn, deparse.level=0)
-			cat(paste("Number of accessions in core colection:", sum(njn[,2]),"\n" ,sep=" "))
-
+			
+	}
 	
+	l<-1:a
+	njn<-cbind(l,njn, deparse.level=0)
+	cat(paste("Number of accessions in core colection:", sum(njn[,2]),"\n" ,sep=" "))
+			
 	return(njn)
 }
