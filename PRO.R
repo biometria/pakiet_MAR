@@ -1,9 +1,9 @@
 PRO <- function(groups, size, newSize, grpIDs){
 	newGrpSizes<-unlist(lapply(1:length(grpIDs), function(i, groups){
-		newSize <- round(newSize*(sum(groups==i)/size))
-		if(newSize == 0)
-			newSize <- 1
-		return(newSize)
+		newGrpSize <- round(newSize*(sum(groups==i)/size))
+		if(newGrpSize == 0)
+			newGrpSize <- 1
+		return(newGrpSize)
 	}, groups))
 	return(newGrpSizes)
 }
