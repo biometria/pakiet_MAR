@@ -1,11 +1,11 @@
 allocation<-function(data, groups, fraction=0.1, method="Pro"){
 	
-	require(cluster)
+	#require(cluster)
 	
 	if(!any(method %in% c("Pro", "Log", "D2", "D3"))
 		stop("Bad name for allocation method!")
 	size <- nrow(data)
-	newSize <- size*fraction #n
+	newSize <- size*fraction
 	
 	grpIDs <- unique(groups)
 	grpSize<-unlist(lapply(1:a, function(i, groups){sum(groups==i)}, groups))
@@ -13,7 +13,7 @@ allocation<-function(data, groups, fraction=0.1, method="Pro"){
 
 	if (method=="Pro"){
 		
-		cat("Proportional allocation method\n") #method that not require cluster package
+		cat("Proportional allocation method\n")
 		newGrpSizes<-PRO(groups, size, newSize, grpIDs)
 		
 	} else if (method=="Log"){
@@ -26,39 +26,15 @@ allocation<-function(data, groups, fraction=0.1, method="Pro"){
 		cat("D2 allocation method\n")
 		newGrpSizes <- D2(size, newSize, grpIDs, grpSize, groups, data)
 		
-		
-		group_a<- groupSize[j]
-		sum_dist_a<-NULL
-		j<-NULL
-		
-
-
 	} else if (method=="D3"){
-		cat("D3 allocation method\n")
-		group_a<- groupSize[j]
-		sum_dist_a<-NULL
-		j<-NULL
-		for(j in 1:a){
-			
-			sum_dist_a[j]<-(mean(daisy(groups_a))*log(nrow(groups_a))*nrow(groups_a))
-			sum_dist<-sum(sum_dist_a)
-		}
-		j<-NULL
 		
-		for (j in 1:a){
-			groupsb<-subset(data, groups==j) 
-			dist_j<-mean(daisy(groupsb))
-			nj<-round(n*((dist_j*nrow(groupsb)*log(nrow(groupsb)))/(sum_dist)))
-			if (nj==0) nj<-1
-				cat(paste(j, nj,"\n", sep=" "))
-			njn[j]<-nj
-		}
-			
+		cat("D3 allocation method\n")
+		newGrpSizes <- D3(size, newSize, grpIDs, grpSize, groups, data)
+	
 	}
 	
-	l<-1:a
-	njn<-cbind(l,njn, deparse.level=0)
-	cat(paste("Number of accessions in core colection:", sum(njn[,2]),"\n" ,sep=" "))
+	results<-cbind(grpIDs,newGrpSizes, deparse.level=0)
+	cat(paste("Number of accessions in core colection:", sum(results[,2]),"\n" ,sep=" "))
 			
-	return(njn)
+	return(results)
 }
