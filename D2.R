@@ -5,11 +5,11 @@ D2 <- function(size, newSize, grpIDs, grpSize, groups, data){
 	
 	sumDist <- sum(sumGrpDist)
 	
-	newGrpSizes<- unlist (lapply( 1: length(grpIDs), function(i, grpIDs, groups, sumGrpDist, sumDist){
+	newGrpSizes<- unlist (lapply( 1: length(grpIDs), function(i, newSize, sumGrpDist, sumDist){
 		newGrpSize <- round( newSize * (sumGrpDist[i] / sumDist) )
 		if(newGrpSize == 0)
 			newGrpSize <- 1
 		return(newGrpSize)
-	}, grpIDs, groups, sumGrpDist, sumDist) )
+	}, newSize, sumGrpDist, sumDist) )
 	return(newGrpSizes)
 }
